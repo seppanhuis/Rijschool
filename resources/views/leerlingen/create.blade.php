@@ -31,7 +31,7 @@
 
                 <div>
                     <label for="geboortedatum" class="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-200">Geboortedatum</label>
-                    <input type="date" id="geboortedatum" name="geboortedatum" value="{{ old('geboortedatum') }}" required class="block w-full rounded-xl border-zinc-300 bg-white px-4 py-2.5 text-zinc-900 shadow-sm focus:border-zinc-900 focus:ring-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100">
+                    <input type="date" id="geboortedatum" name="geboortedatum" value="{{ old('geboortedatum') }}" min="{{ $minGeboortedatum }}" max="{{ $maxGeboortedatum }}" required class="block w-full rounded-xl border-zinc-300 bg-white px-4 py-2.5 text-zinc-900 shadow-sm focus:border-zinc-900 focus:ring-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100">
                 </div>
 
                 <div>
@@ -46,12 +46,12 @@
 
                 <div>
                     <label for="adres" class="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-200">Adres</label>
-                    <input type="text" id="adres" name="adres" value="{{ old('adres') }}" required class="block w-full rounded-xl border-zinc-300 bg-white px-4 py-2.5 text-zinc-900 shadow-sm focus:border-zinc-900 focus:ring-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100">
+                    <input type="text" id="adres" name="adres" value="{{ old('adres') }}" pattern="^(?=.*[A-Za-zÀ-ÿ])(?=.*\d)[A-Za-zÀ-ÿ0-9\s\-\',.\/]+$" title="Gebruik een straatnaam én huisnummer, bijvoorbeeld Hoofdstraat 12" required class="block w-full rounded-xl border-zinc-300 bg-white px-4 py-2.5 text-zinc-900 shadow-sm focus:border-zinc-900 focus:ring-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100">
                 </div>
 
                 <div>
                     <label for="postcode" class="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-200">Postcode</label>
-                    <input type="text" id="postcode" name="postcode" value="{{ old('postcode') }}" required class="block w-full rounded-xl border-zinc-300 bg-white px-4 py-2.5 text-zinc-900 shadow-sm focus:border-zinc-900 focus:ring-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100">
+                    <input type="text" id="postcode" name="postcode" value="{{ old('postcode') }}" pattern="^\d{4}\s?[A-Za-z]{2}$" title="Gebruik een Nederlandse postcode, bijvoorbeeld 1234 AB" maxlength="7" required class="block w-full rounded-xl border-zinc-300 bg-white px-4 py-2.5 text-zinc-900 shadow-sm focus:border-zinc-900 focus:ring-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100">
                 </div>
 
                 <div>

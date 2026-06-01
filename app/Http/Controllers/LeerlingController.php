@@ -44,6 +44,8 @@ class LeerlingController extends Controller
                 'title' => 'Nieuwe leerling toevoegen',
                 'instructeurs' => $this->leerlingModel->sp_GetActieveInstructeurs(),
                 'lespakketten' => $this->leerlingModel->sp_GetActieveLespakketten(),
+                'minGeboortedatum' => now()->subYears(115)->toDateString(),
+                'maxGeboortedatum' => now()->toDateString(),
             ]);
         } catch (Throwable $throwable) {
             Log::error('Leerling create-formulier kon niet worden geladen.', [
@@ -59,6 +61,7 @@ class LeerlingController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate($this->validationRules(), $this->validationMessages(), $this->validationAttributes());
+        $leerlingNaam = trim($validated['voornaam'] . ' ' . $validated['achternaam']);
 
         $validated['is_actief'] = $request->boolean('is_actief');
         $validated['opmerking'] = $validated['opmerking'] ?? null;
@@ -68,7 +71,7 @@ class LeerlingController extends Controller
 
             return redirect()
                 ->route('leerlingen.index')
-                ->with('success', 'Leerling succesvol toegevoegd met id ' . $newId . '.');
+                ->with('success', 'Leerling ' . $leerlingNaam . ' succesvol toegevoegd.');
         } catch (Throwable $throwable) {
             Log::error('Leerling kon niet worden aangemaakt.', [
                 'error' => $throwable->getMessage(),
@@ -120,6 +123,8 @@ class LeerlingController extends Controller
                 'leerling' => $leerling,
                 'instructeurs' => $this->leerlingModel->sp_GetActieveInstructeurs(),
                 'lespakketten' => $this->leerlingModel->sp_GetActieveLespakketten(),
+                'minGeboortedatum' => now()->subYears(115)->toDateString(),
+                'maxGeboortedatum' => now()->toDateString(),
             ]);
         } catch (Throwable $throwable) {
             Log::error('Leerling bewerkformulier kon niet worden geladen.', [
@@ -136,6 +141,10 @@ class LeerlingController extends Controller
     public function update(Request $request, int $id): RedirectResponse
     {
         $validated = $request->validate($this->validationRules($id), $this->validationMessages(), $this->validationAttributes());
+        $leerling = $this->leerlingModel->sp_GetLeerlingById($id);
+        $leerlingNaam = $leerling?->Voornaam && $leerling?->Achternaam
+            ? trim($leerling->Voornaam . ' ' . $leerling->Achternaam)
+            : 'Leerling';
 
         $validated['is_actief'] = $request->boolean('is_actief');
         $validated['opmerking'] = $validated['opmerking'] ?? null;
@@ -146,7 +155,7 @@ class LeerlingController extends Controller
             if ($affected > 0) {
                 return redirect()
                     ->route('leerlingen.index')
-                    ->with('success', 'Leerling succesvol gewijzigd.');
+                    ->with('success', 'Leerling ' . $leerlingNaam . ' succesvol gewijzigd.');
             }
 
             return back()
@@ -168,17 +177,22 @@ class LeerlingController extends Controller
     public function destroy(int $id): RedirectResponse
     {
         try {
+            $leerling = $this->leerlingModel->sp_GetLeerlingById($id);
+            $leerlingNaam = $leerling?->Voornaam && $leerling?->Achternaam
+                ? trim($leerling->Voornaam . ' ' . $leerling->Achternaam)
+                : 'Leerling';
+
             $affected = $this->leerlingModel->sp_DeleteLeerling($id);
 
             if ($affected > 0) {
                 return redirect()
                     ->route('leerlingen.index')
-                    ->with('success', 'Leerling succesvol verwijderd.');
+                    ->with('success', 'Leerling ' . $leerlingNaam . ' succesvol verwijderd.');
             }
 
             return redirect()
                 ->route('leerlingen.index')
-                ->with('error', 'Leerling is niet verwijderd.');
+                ->with('delete_error', 'Leerling ' . $leerlingNaam . ' kon niet worden verwijderd. Mogelijk is deze leerling nog gekoppeld aan lessen of andere gegevens.');
         } catch (Throwable $throwable) {
             Log::error('Leerling kon niet worden verwijderd.', [
                 'id' => $id,
@@ -187,7 +201,7 @@ class LeerlingController extends Controller
 
             return redirect()
                 ->route('leerlingen.index')
-                ->with('error', 'Leerling kon niet worden verwijderd.');
+                ->with('delete_error', $this->deleteFailureReason($throwable));
         }
     }
 
@@ -202,11 +216,11 @@ class LeerlingController extends Controller
         return [
             'voornaam' => ['required', 'string', 'max:100'],
             'achternaam' => ['required', 'string', 'max:100'],
-            'geboortedatum' => ['required', 'date'],
+            'geboortedatum' => ['required', 'date', 'before_or_equal:today', 'after_or_equal:' . now()->subYears(115)->toDateString()],
             'telefoon' => ['required', 'string', 'max:20'],
             'email' => ['required', 'email', 'max:150', $uniqueEmail],
-            'adres' => ['required', 'string', 'max:150'],
-            'postcode' => ['required', 'string', 'max:10'],
+            'adres' => ['required', 'string', 'max:150', 'regex:/^(?=.*[A-Za-zÀ-ÿ])(?=.*\d)[A-Za-zÀ-ÿ0-9\s\-\',.\/]+$/u'],
+            'postcode' => ['required', 'string', 'max:10', 'regex:/^\d{4}\s?[A-Z]{2}$/i'],
             'woonplaats' => ['required', 'string', 'max:100'],
             'instructeur_id' => ['required', 'integer', Rule::exists('Instructeurs', 'InstructeurId')],
             'lespakket_id' => ['required', 'integer', Rule::exists('Lespakketten', 'LespakketId')],
@@ -223,12 +237,15 @@ class LeerlingController extends Controller
             'string' => 'Het veld :attribute moet uit tekst bestaan.',
             'max' => 'Het veld :attribute mag maximaal :max tekens bevatten.',
             'date' => 'Het veld :attribute moet een geldige datum zijn.',
+            'before_or_equal' => 'Het veld :attribute mag niet in de toekomst liggen.',
+            'after_or_equal' => 'Het veld :attribute mag niet ouder zijn dan 115 jaar.',
             'email' => 'Het veld :attribute moet een geldig e-mailadres zijn.',
             'integer' => 'Het veld :attribute moet een geheel getal zijn.',
             'min' => 'Het veld :attribute moet minimaal :min zijn.',
             'boolean' => 'Het veld :attribute moet waar of onwaar zijn.',
             'unique' => 'Er bestaat al een leerling met dit e-mailadres.',
             'exists' => 'De gekozen :attribute bestaat niet.',
+            'regex' => 'Het veld :attribute heeft geen geldig formaat.',
         ];
     }
 
@@ -249,5 +266,20 @@ class LeerlingController extends Controller
             'is_actief' => 'actief',
             'opmerking' => 'opmerking',
         ];
+    }
+
+    private function deleteFailureReason(Throwable $throwable): string
+    {
+        $message = mb_strtolower($throwable->getMessage());
+
+        if (str_contains($message, 'foreign key') || str_contains($message, 'integrity constraint')) {
+            return 'Leerling kon niet worden verwijderd omdat er nog gegevens aan deze leerling gekoppeld zijn.';
+        }
+
+        if (str_contains($message, 'not found') || str_contains($message, 'unknown')) {
+            return 'Leerling kon niet worden verwijderd omdat deze niet meer bestaat.';
+        }
+
+        return 'Leerling kon niet worden verwijderd door een technische fout.';
     }
 }
