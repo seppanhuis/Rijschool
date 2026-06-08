@@ -737,3 +737,4 @@ Als alle stappen slagen, is de CRUD correct gebouwd.
 5. technische log
 6. duidelijke terugkoppeling
 7. responsive
+

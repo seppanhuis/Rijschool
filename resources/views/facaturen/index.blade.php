@@ -4,6 +4,7 @@
 
         <div class="container">
             <h1>{{ $title }}</h1>
+            
 
             @if(session('success'))
                 <div class="alert alert-success">
@@ -17,38 +18,40 @@
                 </div>
             @endif
 
-            <table class="table table-striped">
-                <thead>
+            <table class="min-w-full border border-gray-300">
+                <thead class="bg-gray-100">
                     <tr>
-                        <th>Naam</th>
-                        <th>Omschrijving</th>
-                        <th>Aantal Lessen</th>
-                        <th>Prijs</th>
-                        <th>Actie</th>
+                        <th class="border px-4 py-2 text-left">Naam</th>
+                        <th class="border px-4 py-2 text-left">Omschrijving</th>
+                        <th class="border px-4 py-2 text-left">Aantal Lessen</th>
+                        <th class="border px-4 py-2 text-left">Prijs</th>
+                        <th class="border px-4 py-2 text-left">Actie</th>
                     </tr>
                 </thead>
 
                 <tbody>
-                @forelse($lespakketten as $pakket)
-                    <tr>
-                        <td>{{ $pakket->Naam }}</td>
-                        <td>{{ $pakket->Omschrijving }}</td>
-                        <td>{{ $pakket->AantalLessen }}</td>
-                        <td>€ {{ number_format($pakket->Prijs, 2, ',', '.') }}</td>
-                        <td>
-                            <a href="{{ route('facaturen.create', $pakket->LespakketId) }}"
-                               class="btn btn-primary">
-                                Betaal
-                            </a>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="5">
-                            Geen lespakketten gevonden.
-                        </td>
-                    </tr>
-                @endforelse
+                    @forelse($lespakketten as $pakket)
+                        <tr class="border-t">
+                            <td class="border px-4 py-2">{{ $pakket->Naam }}</td>
+                            <td class="border px-4 py-2">{{ $pakket->Omschrijving }}</td>
+                            <td class="border px-4 py-2">{{ $pakket->AantalLessen }}</td>
+                            <td class="border px-4 py-2">
+                                € {{ number_format($pakket->Prijs, 2, ',', '.') }}
+                            </td>
+                            <td class="border px-4 py-2">
+                                <a href="{{ route('facaturen.create', $pakket->LespakketId) }}"
+                                    class="px-3 py-1 bg-blue-500 text-white rounded">
+                                    Betaal
+                                </a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="px-4 py-2">
+                                Geen lespakketten gevonden.
+                            </td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
 
