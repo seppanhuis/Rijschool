@@ -19,6 +19,10 @@
                     <flux:sidebar.item icon="users" :href="route('leerlingen.index')" :current="request()->routeIs('leerlingen.*')" wire:navigate>
                         {{ __('Leerlingen') }}
                     </flux:sidebar.item>
+
+                    <flux:sidebar.item icon="home" :href="route('facaturen.index')" :current="request()->routeIs('facaturen.*')" wire:navigate>
+                        {{ __('Facaturen') }}
+                    </flux:sidebar.item>
                 </flux:sidebar.group>
             </flux:sidebar.nav>
 

@@ -378,3 +378,102 @@ BEGIN
 END$$
 
 DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `sp_CreateLespakket`;
+DELIMITER $$
+
+CREATE PROCEDURE `sp_CreateLespakket`(
+    IN p_Naam VARCHAR(100),
+    IN p_Omschrijving VARCHAR(255),
+    IN p_AantalLessen INT,
+    IN p_Prijs DECIMAL(10,2)
+)
+BEGIN
+    INSERT INTO `Lespakketten` (
+        `Naam`,
+        `Omschrijving`,
+        `AantalLessen`,
+        `Prijs`
+    )
+    VALUES (
+        p_Naam,
+        p_Omschrijving,
+        p_AantalLessen,
+        p_Prijs
+    );
+
+    SELECT LAST_INSERT_ID() AS new_id;
+END$$
+
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `sp_GetAllLespakketten`;
+
+DELIMITER $$
+
+CREATE PROCEDURE `sp_GetAllLespakketten`()
+BEGIN
+    SELECT
+        L.`LespakketId`
+        ,L.`Naam`
+        ,L.`Omschrijving`
+        ,L.`AantalLessen`
+        ,L.`Prijs`
+        ,L.`IsActief`
+        ,L.`Opmerking`
+        ,L.`DatumAangemaakt`
+        ,L.`DatumGewijzigd`
+    FROM `Lespakketten` AS L
+    where L.IsActief = 1
+    ORDER BY L.`Naam` ASC;
+END$$
+
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS `sp_GetLespakkettenById`;
+DELIMITER $$
+
+CREATE PROCEDURE `sp_GetLespakkettenById`(IN p_Id INT)
+BEGIN
+    SELECT
+        L.`LespakketId`,
+        L.`Naam`,
+        L.`Omschrijving`,
+        L.`AantalLessen`,
+        L.`Prijs`,
+        L.`IsActief`,
+        L.`Opmerking`,
+        L.`DatumAangemaakt`,
+        L.`DatumGewijzigd`
+    FROM `Lespakketten` AS L
+    WHERE L.`LespakketId` = p_Id
+    LIMIT 1;
+END$$
+
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `sp_UpdateLespakket`;
+DELIMITER $$
+
+CREATE PROCEDURE `sp_UpdateLespakket`(
+    IN p_Id INT,
+    IN p_Naam VARCHAR(100),
+    IN p_Omschrijving VARCHAR(255),
+    IN p_AantalLessen INT,
+    IN p_Prijs DECIMAL(10,2)
+)
+BEGIN
+    UPDATE `Lespakketten`
+    SET
+        `Naam` = p_Naam,
+        `Omschrijving` = p_Omschrijving,
+        `AantalLessen` = p_AantalLessen,
+        `Prijs` = p_Prijs,
+        `DatumGewijzigd` = CURRENT_TIMESTAMP(6)
+    WHERE `LespakketId` = p_Id;
+
+    SELECT ROW_COUNT() AS affected;
+END$$
+
+DELIMITER ;
