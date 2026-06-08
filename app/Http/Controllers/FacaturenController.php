@@ -67,8 +67,8 @@ class FacaturenController extends Controller
     {
         $request->validate([
             'kaarthouder' => ['required', 'string', 'max:100'],
-            'kaartnummer' => ['required', 'string', 'max:19'],
-            'vervaldatum' => ['required', 'string', 'max:5'],
+            'kaartnummer' => ['required', 'string', 'max:18'],
+            'vervaldatum' => ['required', 'string'],
             'cvv' => ['required', 'digits_between:3,4'],
         ]);
 

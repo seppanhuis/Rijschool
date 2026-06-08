@@ -1,121 +1,105 @@
-@extends('layouts.app')
+<x-layouts::app.sidebar :title="$title ?? null">
 
-@section('content')
+    <flux:main>
 
-<div class="container">
+        <div class="max-w-4xl mx-auto">
 
-```
-<h1>{{ $title }}</h1>
+            <h1 class="text-2xl font-bold mb-6">
+                {{ $title }}
+            </h1>
 
-<div class="card mb-4">
-    <div class="card-body">
+            <div class="bg-white border rounded p-6 mb-6">
+                <h3 class="text-xl font-semibold mb-4">
+                    {{ $lespakket->Naam }}
+                </h3>
 
-        <h3>{{ $lespakket->Naam }}</h3>
+                <p><strong>Omschrijving:</strong> {{ $lespakket->Omschrijving }}</p>
+                <p><strong>Aantal lessen:</strong> {{ $lespakket->AantalLessen }}</p>
+                <p><strong>Prijs:</strong> € {{ number_format($lespakket->Prijs, 2, ',', '.') }}</p>
+            </div>
 
-        <p>
-            <strong>Omschrijving:</strong>
-            {{ $lespakket->Omschrijving }}
-        </p>
+            @if ($errors->any())
+                <div class="bg-red-100 text-red-700 p-4 rounded mb-6">
+                    <ul class="list-disc pl-5">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
-        <p>
-            <strong>Aantal lessen:</strong>
-            {{ $lespakket->AantalLessen }}
-        </p>
+            <form action="{{ route('facaturen.store') }}" method="POST">
+                @csrf
 
-        <p>
-            <strong>Prijs:</strong>
-            € {{ number_format($lespakket->Prijs, 2, ',', '.') }}
-        </p>
+                <input type="hidden"
+                       name="lespakket_id"
+                       value="{{ $lespakket->LespakketId }}">
 
-    </div>
-</div>
+                {{-- KAARTHOUDER --}}
+                <div class="mb-4">
+                    <label class="block font-medium mb-1">Naam kaarthouder</label>
 
-@if ($errors->any())
-    <div class="alert alert-danger">
-        <ul class="mb-0">
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
+                    <input type="text"
+                           name="kaarthouder"
+                           class="w-full border rounded px-3 py-2"
+                           required>
+                </div>
 
-<form action="{{ route('facaturen.store') }}"
-      method="POST">
+                {{-- KAARTNUMMER (exact 18 cijfers) --}}
+                <div class="mb-4">
+                    <label class="block font-medium mb-1">Kaartnummer (18 cijfers) aan elkaar</label>
 
-    @csrf
+                    <input type="text"
+                           name="kaartnummer"
+                           class="w-full border rounded px-3 py-2"
+                           {{-- inputmode="numeric" --}}
+                           maxlength="18"
+                           {{-- pattern="\d{18}" --}}
+                           title="Kaartnummer moet exact 18 cijfers zijn"
+                           required>
+                </div>
 
-    <input type="hidden"
-           name="lespakket_id"
-           value="{{ $lespakket->LespakketId }}">
+                {{-- VERVALDATUM (echte date input) --}}
+                <div class="mb-4">
+                    <label class="block font-medium mb-1">Vervaldatum</label>
 
-    <div class="mb-3">
-        <label class="form-label">
-            Naam kaarthouder
-        </label>
+                    <input type="month"
+                           name="vervaldatum"
+                           class="w-full border rounded px-3 py-2"
+                           min="{{ now()->addMonth()->format('Y-m') }}"
+                           required>
+                </div>
 
-        <input type="text"
-               name="kaarthouder"
-               class="form-control"
-               value="{{ old('kaarthouder') }}"
-               required>
-    </div>
+                {{-- CVV (3 of 4 cijfers) --}}
+                <div class="mb-4">
+                    <label class="block font-medium mb-1">CVV</label>
 
-    <div class="mb-3">
-        <label class="form-label">
-            Creditcardnummer
-        </label>
+                    <input type="text"
+                           name="cvv"
+                           class="w-full border rounded px-3 py-2"
+                           inputmode="numeric"
+                           maxlength="4"
+                           pattern="\d{3,4}"
+                           title="CVV moet 3 of 4 cijfers zijn"
+                           required>
+                </div>
 
-        <input type="text"
-               name="kaartnummer"
-               class="form-control"
-               placeholder="1234 5678 9012 3456"
-               value="{{ old('kaartnummer') }}"
-               required>
-    </div>
+                <div class="flex gap-3">
+                    <a href="{{ route('facaturen.index') }}"
+                       class="px-4 py-2 bg-gray-500 text-white rounded">
+                        Terug
+                    </a>
 
-    <div class="row">
+                    <button type="submit"
+                            class="px-4 py-2 bg-green-600 text-white rounded">
+                        Betalen
+                    </button>
+                </div>
 
-        <div class="col-md-6 mb-3">
-            <label class="form-label">
-                Vervaldatum
-            </label>
+            </form>
 
-            <input type="text"
-                   name="vervaldatum"
-                   class="form-control"
-                   placeholder="MM/JJ"
-                   value="{{ old('vervaldatum') }}"
-                   required>
         </div>
 
-        <div class="col-md-6 mb-3">
-            <label class="form-label">
-                CVV
-            </label>
+    </flux:main>
 
-            <input type="password"
-                   name="cvv"
-                   class="form-control"
-                   maxlength="4"
-                   required>
-        </div>
-
-    </div>
-
-    <a href="{{ route('facaturen.index') }}"
-       class="btn btn-secondary">
-        Terug
-    </a>
-
-    <button type="submit"
-            class="btn btn-success">
-        Betaling uitvoeren
-    </button>
-
-</form>
-```
-
-</div>
-
-@endsection
+</x-layouts::app.sidebar>
