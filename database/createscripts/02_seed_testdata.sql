@@ -48,3 +48,12 @@ INSERT INTO `Rijlessen` (`LeerlingId`, `InstructeurId`, `AutoId`, `LesStart`, `L
 (3, 3, 3, '2026-05-28 13:30:00', '2026-05-28 14:30:00', 'Kerkstraat 22, Bergen op Zoom', 'Verkeer lezen', 'Voorrang en snelheidsinschatting', 'Afgerond', 'Voldoende gecontroleerd', 'Goed herstel na een korte pauze', NULL, 1, 'Evaluatie afgerond', SYSDATE(6), SYSDATE(6)),
 (4, 4, 5, '2026-06-03 15:00:00', '2026-06-03 16:00:00', 'Molenweg 3, Tholen', 'Examenroutes oefenen', 'Snelweg en opritten', 'Gepland', NULL, 'Focus op e-routes', NULL, 1, 'Elektrische auto ingepland', SYSDATE(6), SYSDATE(6)),
 (5, 1, 4, '2026-05-30 09:30:00', '2026-05-30 10:30:00', 'Havenstraat 19, Bergen op Zoom', 'Herstart na herstel', 'Rustig heropstarten', 'Geannuleerd', NULL, 'Leerling wilde de les tijdelijk verzetten', 'Herstelperiode na operatie', 0, 'Les verplaatst naar later moment', SYSDATE(6), SYSDATE(6));
+
+INSERT INTO `Facaturen`
+(`LespakketId`, `Kaarthouder`, `Kaartnummer`, `Vervaldatum`, `CVV`, `IsActief`)
+VALUES
+(1, 'Jan Jansen', '583914726105847392', '2028-11-01', '381', 1),
+(2, 'Lisa de Vries', '104857362918475603', '2029-06-01', '742', 1),
+(3, 'Mohammed El Amrani', '847362915048173625', '2027-09-01', '159', 1),
+(1, 'Sophie Bakker', '265901847362518409', '2030-03-01', '924', 1),
+(2, 'Thomas van Dijk', '918273645501928374', '2028-01-01', '517', 1);

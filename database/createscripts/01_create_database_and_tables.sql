@@ -1,8 +1,3 @@
-DROP DATABASE IF EXISTS `VierkanteWielen`;
-CREATE DATABASE IF NOT EXISTS `VierkanteWielen`
-    CHARACTER SET utf8mb4
-    COLLATE utf8mb4_unicode_ci;
-
 USE `VierkanteWielen`;
 
 DROP TABLE IF EXISTS `Rijlessen`;
@@ -12,6 +7,7 @@ DROP TABLE IF EXISTS `Autos`;
 DROP TABLE IF EXISTS `Lespakketten`;
 DROP TABLE IF EXISTS `Instructeurs`;
 DROP TABLE IF EXISTS `Rollen`;
+DROP TABLE IF EXISTS `Facaturen`;
 
 CREATE TABLE `Rollen` (
     `RolId` TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -137,4 +133,19 @@ CREATE TABLE `Rijlessen` (
     CONSTRAINT `FK_Rijlessen_Leerlingen` FOREIGN KEY (`LeerlingId`) REFERENCES `Leerlingen` (`LeerlingId`) ON UPDATE CASCADE ON DELETE RESTRICT,
     CONSTRAINT `FK_Rijlessen_Instructeurs` FOREIGN KEY (`InstructeurId`) REFERENCES `Instructeurs` (`InstructeurId`) ON UPDATE CASCADE ON DELETE RESTRICT,
     CONSTRAINT `FK_Rijlessen_Autos` FOREIGN KEY (`AutoId`) REFERENCES `Autos` (`AutoId`) ON UPDATE CASCADE ON DELETE RESTRICT
+) ENGINE=InnoDB;
+
+CREATE TABLE `Facaturen` (
+    `FacatuurId` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `LespakketId` INT UNSIGNED NOT NULL,
+    `Kaarthouder` VARCHAR(100) NOT NULL,
+    `Kaartnummer` CHAR(18) NOT NULL,
+    `Vervaldatum` DATE NOT NULL,
+    `CVV` CHAR(4) NOT NULL,
+    `IsActief` TINYINT(1) NOT NULL DEFAULT 1,
+    `Opmerking` VARCHAR(255) NULL,
+    `DatumAangemaakt` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    `DatumGewijzigd` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
+        ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (`FacatuurId`)
 ) ENGINE=InnoDB;

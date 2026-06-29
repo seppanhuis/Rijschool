@@ -4,76 +4,78 @@ namespace App\Http\Controllers;
 
 use App\Models\Facaturen;
 use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Log;
-use Illuminate\View\View;
-use Throwable;
 
 class FacaturenController extends Controller
 {
-    private Facaturen $facaturenModel;
+    private Facaturen $model;
 
     public function __construct()
     {
-        $this->facaturenModel = new Facaturen();
+        $this->model = new Facaturen();
     }
 
-    /**
-     * Overzicht van alle lespakketten
-     */
-   public function index()
-{
-    return view('facaturen.index', [
-        'title' => 'Lespakketten',
-        'lespakketten' => $this->facaturenModel->sp_GetAllLespakketten(),
-    ]);
-}
-
-    /**
-     * Toon betaalpagina
-     */
-    public function create(int $id): View|RedirectResponse
+    public function index()
     {
-        try {
-
-            $lespakket = $this->facaturenModel->sp_GetLespakkettenById($id);
-
-            if (!$lespakket) {
-                abort(404);
-            }
-
-            return view('facaturen.create', [
-                'title' => 'Betalen',
-                'lespakket' => $lespakket,
-            ]);
-
-        } catch (Throwable $throwable) {
-
-            Log::error('Betaalpagina kon niet worden geladen.', [
-                'id' => $id,
-                'error' => $throwable->getMessage(),
-            ]);
-
-            return redirect()
-                ->route('facaturen.index')
-                ->with('error', 'De betaalpagina kon niet worden geladen.');
-        }
-    }
-
-    /**
-     * Verwerk betaling
-     */
-    public function store(Request $request): RedirectResponse
-    {
-        $request->validate([
-            'kaarthouder' => ['required', 'string', 'max:100'],
-            'kaartnummer' => ['required', 'string', 'max:18'],
-            'vervaldatum' => ['required', 'string'],
-            'cvv' => ['required', 'digits_between:3,4'],
+        return view('facaturen.index', [
+            'title' => 'Facturen',
+            'facaturen' => $this->model->getAll()
         ]);
+    }
+
+    public function create()
+    {
+        return view('facaturen.create');
+    }
+
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'lespakket_id' => 'required|integer',
+            'kaarthouder' => 'required|string|max:100',
+            'kaartnummer' => 'required|string|size:18',
+            'vervaldatum' => 'required|after_or_equal:today',
+            'cvv' => 'required|string|min:3|max:4',
+            'opmerking' => 'nullable|string|max:255'
+        ]);
+
+        $this->model->createFacatuur($data);
 
         return redirect()
             ->route('facaturen.index')
-            ->with('success', 'Betaling succesvol verwerkt.');
+            ->with('success','Factuur toegevoegd');
+    }
+
+    public function edit($id)
+    {
+        return view('facaturen.edit', [
+            'factuur' => $this->model->getById($id)
+        ]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $data = $request->validate([
+            'kaarthouder' => 'required|string|max:100',
+            'kaartnummer' => 'required|string|size:18',
+            'vervaldatum' => 'required|after_or_equal:today',
+            'cvv' => 'required|string|min:3|max:4',
+            'isactief' => 'required',
+            'opmerking' => 'nullable|string|max:255'
+        ]);
+
+        $this->model->updateFacatuur($id, $data);
+
+        return redirect()
+            ->route('facaturen.index')
+            ->with('success','Factuur aangepast');
+    }
+
+    public function destroy($id)
+    {
+        $this->model->deleteFacatuur($id);
+
+        return redirect()
+            ->route('facaturen.index')
+            ->with('success','Factuur verwijderd');
     }
 }

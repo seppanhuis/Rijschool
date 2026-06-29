@@ -9,50 +9,61 @@ class Facaturen extends Model
 {
     protected $table = 'Facaturen';
 
-    protected $primaryKey = 'FacaturenId';
+    protected $primaryKey = 'FacatuurId';
 
     public $timestamps = false;
 
     protected $guarded = [];
 
-    public function sp_GetAllLespakketten(): array
+    public function getAll()
     {
-        return DB::select('CALL sp_GetAllLespakketten()');
+        return DB::select('CALL sp_GetAllFacaturen()');
     }
 
-    public function sp_GetLespakkettenById(int $id): ?object
+    public function getById($id)
     {
-        return DB::selectOne('CALL sp_GetLespakkettenById(:id)', ['id' => $id]);
+        return DB::selectOne(
+            'CALL sp_GetFacatuurById(?)',
+            [$id]
+        );
     }
 
-    public function sp_CreateLespakket(array $Data): int
+    public function createFacatuur($data)
     {
-        $row = DB::selectOne(
-            'CALL sp_CreateLespakket(:naam, :omschrijving, :duur, :prijs)',
+        return DB::selectOne(
+            'CALL sp_CreateFacatuur(?,?,?,?,?,?)',
             [
-                'naam' => $Data['naam'],
-                'omschrijving' => $Data['omschrijving'],
-                'duur' => $Data['duur'],
-                'prijs' => $Data['prijs'],
+                $data['lespakket_id'],
+                $data['kaarthouder'],
+                $data['kaartnummer'],
+                $data['vervaldatum'].'-01',
+                $data['cvv'],
+                $data['opmerking'] ?? null
             ]
         );
-
-        return (int) ($row->new_id ?? 0);
     }
 
-    public function sp_UpdateLespakket(int $id, array $Data): int
+    public function updateFacatuur($id,$data)
     {
-        $row = DB::selectOne(
-            'CALL sp_UpdateLespakket(:id, :naam, :omschrijving, :duur, :prijs)',
+        return DB::selectOne(
+            'CALL sp_UpdateFacatuur(?,?,?,?,?,?,?)',
             [
-                'id' => $id,
-                'naam' => $Data['naam'],
-                'omschrijving' => $Data['omschrijving'],
-                'duur' => $Data['duur'],
-                'prijs' => $Data['prijs'],
+                $id,
+                $data['kaarthouder'],
+                $data['kaartnummer'],
+                $data['vervaldatum'].'-01',
+                $data['cvv'],
+                $data['isactief'],
+                $data['opmerking'] ?? null
             ]
         );
+    }
 
-        return (int) ($row->affected ?? 0);
+    public function deleteFacatuur($id)
+    {
+        return DB::selectOne(
+            'CALL sp_DeleteFacatuur(?)',
+            [$id]
+        );
     }
 }
